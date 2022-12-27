@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<head>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src=" http://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js "></script>
+    <title> Form With JsonDb</title>
+
+    <style type="text/css">
+      * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+      .container {
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            flex-direction: row;
+        }
+
+      body {
+            height: 100vh;
+            background-color: #A9C9FF;
+            background-image: linear-gradient(180deg, #A9C9FF 0%, #FFBBEC 100%);
+
+        }
+      h1{
+        padding-top: 30px;
+        font-size: 3rem;
+        text-align: center;
+      }
+      #empId {
+            height: 30px;
+            width: 250px;
+            border: 2px solid black;
+            padding: 10px;
+            margin: 10px;
+        }
+         #Register {
+            padding:2px;
+            width: 50%;
+            height: 35px;
+            border: 2px solid;
+            background: #2691d9;
+            border-radius: 25px;
+            font-size: 20px;
+            color: #e9f4fb;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #Register:hover {
+            border-color: #2691d9;
+            transition: .5s;
+        }
+
+    </style>
+
+
+  </head>
+
+<body>
+    <div class="container">
+        <h1><b>Form</b></h1>
+        <form id="empForm" method="post">
+          <div class="form-group">
+            <span
+              ><label for="empId">Employee ID:</label>
+              <label id="empIdMsg"> </label
+            ></span>
+            <input
+              type="text"
+              class="form-control"
+              name="empId"
+              id="empId"
+              placeholder="Enter Employee ID"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="empName">Employee Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="empName"
+              placeholder="Enter Employee Name"
+              name="empName"
+            />
+          </div>
+          <div class="form-group">
+            <label for="empEmail">Email:</label>
+            <input
+              type="email"
+              class="form-control"
+              id="empEmail"
+              placeholder="Enter Employee Email"
+              name="empEmail"
+            />
+          </div>
+          <input id="Register" 
+            type="button"
+            class="btn btn-primary"
+            id="empSave"
+            value="Save"
+            onclick="saveEmployee();"
+          />
+        </form> 
+        <script>
+       function saveEmployee() {
+       
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+            return;
+            }
+            var putReqStr = createPUTRequest("90938304|-31949273683088961|90952318",
+            jsonStr, "EmpMain", "Emp-rel");
+            alert(putReqStr);
+        jQuery.ajaxSetup({async: false});
+        var resultObj = executeCommandAtGivenBaseUrl(putReqStr,
+        "http://api.login2explore.com:5577", "/api/iml");
+        alert(JSON.stringify(resultObj));
+        jQuery.ajaxSetup({async: true});
+        resetForm();
+        }
+
+ function validateAndGetFormData() {
+            var empIdVar = $("#empId").val();
+            if (empIdVar === "") {
+            alert("Employee ID Required Value");
+            $("#empId").focus();
+            return "";
+            }
+            var empNameVar = $("#empName").val();
+            if (empNameVar === "") {
+            alert("Employee Name is Required Value");
+            $("#empName").focus();
+            return "";
+            }
+            var empEmailVar = $("#empEmail").val();
+            if (empEmailVar === "") {
+            alert("Employee Email is Required Value");
+            $("#empEmail").focus();
+            return "";
+            }
+            var jsonStrObj = {
+            empId: empIdVar,
+            empName: empNameVar,
+            empEmail: empEmailVar,
+            };
+
+            return JSON.stringify(jsonStrObj);
+            }
+
+            // This method is used to create PUT Json request.
+            function createPUTRequest(connToken, jsonObj, dbName, relName) {
+            var putRequest = "{\n"
+            + "\"token\" : \""
+            + connToken
+            + "\","
+            + "\"dbName\": \""
+            + dbName
+            + "\",\n" + "\"cmd\" : \"PUT\",\n"
+            + "\"rel\" : \""
+            + relName + "\","
+            + "\"jsonStr\": \n"
+            + jsonObj
+            + "\n"
+            + "}";
+            return putRequest;
+            }
+
+    // In place of this function we wll  use common.js function
+            function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result) {
+            jsonObj = JSON.parse(result);
+            }).fail(function (result) {
+            var dataJsonObj = result.responseText;
+            jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+            }
+
+            function resetForm() {
+            $("#empId").val("")
+            $("#empName").val("");
+            $("#empEmail").val("");
+            $("#empId").focus();
+
+            }
+                
+            </script>
+</body>
+</html>
